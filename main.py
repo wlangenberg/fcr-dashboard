@@ -65,11 +65,15 @@ st.write('Prisdatat är hämtat från mimer som svenska kraftnät ansvarar för.
 
 
 # Sidebar for user inputs
-start_date = st.sidebar.date_input('Start', data['Date'].min())
-end_date = st.sidebar.date_input('Slut', data['Date'].max())
+start_date = st.sidebar.date_input('Start', data['Date'].min(), data['Date'].min(), data['Date'].max())
+end_date = st.sidebar.date_input('Slut', data['Date'].max(), data['Date'].min(), data['Date'].max())
 
 # Filter the data based on user input
 filtered_data = data[(data['Date'] >= pd.Timestamp(start_date)) & (data['Date'] <= pd.Timestamp(end_date))]
+data_count = len(filtered_data)
+max_date = max(filtered_data['Date'])
+min_date = min(filtered_data['Date'])
+
 
 # Daily average graph
 st.subheader(f'Dagligt genomsnittligt pris [{genre}]')
@@ -108,15 +112,10 @@ st.write("Grafen visar ett medelvärde för varje timme på dygnet, där varje �
 # For instance, you could show price distribution, correlation with other factors, etc.
 
 # Data description
-st.sidebar.markdown('**Data Beskrivning:**')
-st.sidebar.write(f"Antal datapunkter: {len(data)}")
-
-# About section
-st.sidebar.markdown('**Information:**')
-st.sidebar.write(f"Denna dashboard visar data för FCR priser över tidsperioden {data['Date'].min()} till {data['Date'].max()}")
-
-# Run the Streamlit app
-if __name__ == '__main__':
-    st.sidebar.markdown('---')
-    st.sidebar.write("FCR prisdata hämtad från: https://mimer.svk.se/")
-    st.sidebar.write("Växelkurser hämtad från: https://se.investing.com/currencies/eur-sek-historical-data")
+st.sidebar.markdown('---')
+st.sidebar.markdown('**Beskrivning av data:**')
+st.sidebar.write(f"* Antal datapunkter: {data_count}")
+st.sidebar.write(f"* Graferna i dashboarden avnänder data över tidsperioden {str(min_date).split(' ')[0]} till {str(max_date).split(' ')[0]}")
+st.sidebar.markdown('---')
+st.sidebar.write("FCR prisdata hämtad från: https://mimer.svk.se/")
+st.sidebar.write("Växelkurser hämtad från: https://se.investing.com/currencies/eur-sek-historical-data")

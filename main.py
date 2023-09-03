@@ -39,10 +39,30 @@ data['Hour'] = data['Date'].dt.hour
 data['Month'] = data['Date'].dt.month
 month_name = ['Januari', 'Februari', 'Mars', 'April', 'Maj', 'Juni', 'Juli', 'Augusti', 'September', 'Oktober', 'November', 'December']
 # Set up the Streamlit app
-st.title('Dashboard: FCR Priser')
+st.title('Vad är FCR?')
+st.write("""
+        FCR-N (Frequency Containment Reserve – Normal), eller Frekvenshållningsreserv normaldrift på svenska, är en term som används inom ramen för balanstjänster för elnät.
+        Frekvenshållningsreserver (FCR) har till uppgift att stabilisera frekvensen vid frekvensavvikelser och är grundläggande för att kunna hålla balansen. 
+        De aktiveras automatiskt om frekvensen ändras inom det frekvensområde de ska stötta. FCR handlas upp i förväg för varje ögonblick under dygnet.
+        Det finns flera olika FCR-produkter. FCR-N är den frekvenshållningsreserv som används vid normal drift.     
+         """)
+
+st.write("""
+        Priset EUR/MW, eller Pris per megawatt på svenska, 
+        i sammanhanget med FCR-N, 
+        hänvisar till kostnaden per megawatt (MW) av reservkraft som tillhandahålls eller köps för att upprätthålla frekvenskontroll. 
+        Detta pris används vanligtvis för att fastställa den ekonomiska ersättningen för leverantörer av FCR-N-tjänster eller de avgifter som uppstår när nätföretag köper dessa tjänster.
+         """)
+
+st.title('Dashboard för FCR Priser över tid')
 
 # Short introduction
-st.write('')
+st.write('Denna dashboard är skapad för att enkelt kunna visualisera de historiska priserna för FCR-N på den svenska och danska marknaden.')
+
+st.write('Datat avser medelpris uppmätt i SEK/MW (eller EUR/MW) för avropad kapacitet av FCR-N, baserat på svenska och danska BA (ej TSO-handel). Datum och tid anges i CET/CEST.')
+
+st.write('Prisdatat är hämtat från mimer som svenska kraftnät ansvarar för. Datat är från början uttryckt i EUR, vilket vi omvandlat till SEK genom att använda historiskt data för växelkursen EUR/SEK.')
+
 
 # Sidebar for user inputs
 start_date = st.sidebar.date_input('Start', data['Date'].min())
@@ -56,16 +76,17 @@ st.subheader(f'Dagligt genomsnittligt pris [{genre}]')
 daily_avg = filtered_data.resample('D', on='Date').mean()
 st.line_chart(daily_avg['Price'])
 
+st.write('Grafen avser medelvärde för priset varje dag.')
+
 # Monthly average graph
 st.subheader(f'Genomsnittligt månadspris [{genre}]')
 monthly_avg = filtered_data.copy()
 monthly_avg = monthly_avg.loc[:, ['Year', 'Month', 'Price']].groupby(['Year', 'Month']).mean().reset_index()
 monthly_pivot = monthly_avg.pivot(index='Month', columns='Year', values='Price')
 monthly_pivot = monthly_pivot.rename(index=lambda x: f"{str(x).zfill(2)} {month_name[x-1]}")
-
 st.line_chart(monthly_pivot)
 
-
+st.write("Grafen visar ett medelvärde för varje månad, där varje år urskiljs med en separat linje. Detta för att enklare jämföra månatliga förändringar mellan olika år.")
 
 
 # Yearly average graph
@@ -73,11 +94,14 @@ st.subheader(f'Genomsnittligt pris årsvis [{genre}]')
 yearly_avg = filtered_data.resample('Y', on='Date').mean()
 st.bar_chart(yearly_avg['Price'])
 
+
 # Hourly average graph
 st.subheader(f'Genomsnittligt timpris per år [{genre}]')
 hourly_avg = filtered_data.groupby(['Year', 'Hour']).mean().reset_index()
 hourly_pivot = hourly_avg.pivot(index='Hour', columns='Year', values='Price')
 st.line_chart(hourly_pivot)
+
+st.write("Grafen visar ett medelvärde för varje timme på dygnet, där varje år visas på en separat linje.")
 
 # Additional examples
 # You can add more graphs and visualizations here based on your data
@@ -95,4 +119,4 @@ st.sidebar.write(f"Denna dashboard visar data för FCR priser över tidsperioden
 if __name__ == '__main__':
     st.sidebar.markdown('---')
     st.sidebar.write("FCR prisdata hämtad från: https://mimer.svk.se/")
-    st.sidebar.write("Valuta data hämtad från: https://se.investing.com/currencies/eur-sek-historical-data")
+    st.sidebar.write("Växelkurser hämtad från: https://se.investing.com/currencies/eur-sek-historical-data")

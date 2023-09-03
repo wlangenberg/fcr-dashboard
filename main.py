@@ -3,7 +3,6 @@ import streamlit as st
 import numpy as np
 import os
 
-
 st.set_page_config(
     page_title="Price Dashboard",
     page_icon=":battery:",
@@ -16,7 +15,6 @@ def getData():
     try: 
         return pd.read_csv('./data/fcr_price_data.csv', index_col=0, dtype={'Price_sek': np.float32, 'Price_eur': np.float32})
     except Exception as e:
-        st.write('Working directory:', os.getcwd())
         st.error('Could not get file due to error:', e)
 
 data = getData()
